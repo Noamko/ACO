@@ -16,7 +16,7 @@ class Graph:
             return self.neighbors.copy()
 
     class Edge:
-        def __init__(self, a, b, cost) -> None:
+        def __init__(self, a, b, cost = 0) -> None:
             self.a = a
             self.b = b
             self.cost = cost
@@ -25,7 +25,7 @@ class Graph:
             return (__o.a == self.a and __o.b == self.b) or (__o.b == self.a and __o.a == self.b)
 
         def __str__(self) -> str:
-            return f"{self.a} ----- {self.b}"
+            return f"{self.a} ---{self.cost}--- {self.b}"
         
     def __init__(self, edges = [], nodes = []) -> None:
         self.edges = edges
@@ -38,7 +38,7 @@ class Graph:
             a += str(e) + "\n"
         return str(a)
 
-    def generate(self, size = 10, mincost = 1, maxcost = 1):
+    def generate(self, size = 10, mincost = 1, maxcost = 100):
         for i in range(size):
             self.nodes.append(self.Node(i))
 
@@ -56,14 +56,14 @@ class DirectedGraph(Graph):
             super().__init__(a, b, cost)
 
         def __str__(self) -> str:
-            return f"{self.a} ----> {self.b}"
+            return f"{self.a} --{self.cost}--> {self.b}"
         def __eq__(self, __o: object) -> bool:
             return (__o.a == self.a and __o.b == self.b)
 
     def __init__(self, edges=[], nodes=[]) -> None:
         super().__init__(edges, nodes)
 
-    def generate(self, size = 10, mincost = 1, maxcost = 1):
+    def generate(self, size = 10, mincost = 1, maxcost = 100):
         for i in range(size):
             self.nodes.append(self.Node(i))
 
