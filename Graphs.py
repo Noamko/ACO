@@ -11,21 +11,22 @@ class Graph:
 
         def __str__(self) -> str:
             return str(self.id)
-            
+
         def getNeighbors(self) -> list:
             return self.neighbors.copy()
 
     class Edge:
-        def __init__(self, a, b, cost,type = "none") -> None:
+        def __init__(self, a, b, cost, g) -> None:
             self.a = a
             self.b = b
+            self.g = g
             self.cost = cost
             self.type = type
 
-            if type == "none":
+            if g.type == "none":
                 self.a.neighbors.append(b)
                 self.b.neighbors.append(a)
-            elif type =="directed":
+            elif self.g.type  =="directed":
                 self.a.neighbors.append(b)
 
         def __eq__(self, __o: object) -> bool:
@@ -35,10 +36,10 @@ class Graph:
                 return (__o.a == self.a and __o.b == self.b)
 
         def __str__(self) -> str:
-            if self.type == "none":
+            if self.g.type == "none":
                 return f"{self.a} ----- {self.b}"
 
-            elif self.type == "directed":
+            elif self.g.type == "directed":
                 return f"{self.a} ----> {self.b}"
 
     def __init__(self, edges = [], nodes = [], type = "none") -> None:
@@ -61,7 +62,7 @@ class Graph:
             self.nodes.append(self.Node(i))
 
         for n in self.nodes:
-            e = self.Edge(n, self.nodes[random.randint(0, size -1)],random.randint(mincost, maxcost),"none")
+            e = self.Edge(n, self.nodes[random.randint(0, size -1)],random.randint(mincost, maxcost), self)
             if e.a != e.b and e not in self.edges:
                 self.edges.append(e)
             
