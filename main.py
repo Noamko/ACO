@@ -1,6 +1,6 @@
 
-from Graphs import Graph
+from Graphs import Graph, DirectedGraph
 
-g = Graph()
+g = DirectedGraph()
 g.generate()
 print(g)
