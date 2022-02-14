@@ -1,32 +1,10 @@
 import random
-
 class Graph:
-    class Node:
-        def __init__(self, id) -> None:
-            self.id = id
-            self.neighbors = []
-
-        def __eq__(self, __o: object) -> bool:
-            return __o.id == self.id
-
-        def __str__(self) -> str:
-            return str(self.id)
-
-        def getNeighbors(self) -> list:
-            return self.neighbors
-
-        def neighborsCount(self):
-            return len(self.neighbors)
-
     class Edge:
         def __init__(self, a, b, cost = 0) -> None:
-            if not isinstance(a, Graph.Node) or not isinstance(b, Graph.Node):
-                raise Exception("error: Can't initiate Edge witn none Graph.Node")
             self.a = a
             self.b = b
             self.cost = cost
-            self.a.neighbors.append(self.b)
-            self.b.neighbors.append(self.a)
 
         def __eq__(self, __o: object) -> bool:
             return (__o.a == self.a and __o.b == self.b) or (__o.b == self.a and __o.a == self.b)
@@ -34,12 +12,26 @@ class Graph:
         def __str__(self) -> str:
             return f"{self.a} ---{self.cost}--- {self.b}"
     
-    def __init__(self, nodes = [], edges = []) -> None:
+    def __init__(self, nodes=[], edges=[]) -> None:
         self.edges = edges
         self.nodes = nodes
         self.nodeMap = {}
+        self.edgeMap = {}
+        self.neighborLists = {}
+
         for n in self.nodes:
-            self.nodeMap[n.id] = n
+            self.nodeMap[n] = n
+
+        for e in self.edges:
+            self.edgeMap[(e.a, e.b)] = e
+
+            if e.a in self.neighborLists:
+                self.neighborLists[e.a].append(e.b)
+            else: self.neighborLists[e.a] = [e.b]
+
+            if e.b in self.neighborLists:
+                self.neighborLists[e.b].append(e.a)
+            else: self.neighborLists[e.a] = [e.a]
 
     def __str__(self) -> str:
         a = ""
@@ -47,8 +39,9 @@ class Graph:
             a += str(e) + "\n"
         return str(a)
 
-    def getNodeById(self, id):
-        return self.nodeMap[id]
+    def getEdge(self, a, b) -> Edge:
+        edge = (a, b) if (a, b) in self.edgeMap else (b, a)
+        return self.edgeMap[edge]
     
     def nodeCount(self):
         return len(self.nodes)
@@ -61,6 +54,7 @@ class DirectedGraph(Graph):
 
         def init_neighbors(self):
             self.a.neighbors.append(self.b)
+
         def __str__(self) -> str:
             return f"{self.a} --{self.cost}--> {self.b}"
         def __eq__(self, __o: object) -> bool:
@@ -68,16 +62,6 @@ class DirectedGraph(Graph):
 
     def __init__(self, edges=[], nodes=[]) -> None:
         super().__init__(edges, nodes)
-
-    def generate(self, size = 10, mincost = 1, maxcost = 100):
-        for i in range(size):
-            self.nodes.append(self.Node(i))
-
-        for n in self.nodes:
-            e = self.Edge(n, self.nodes[random.randint(0, size -1)],random.randint(mincost, maxcost))
-            if e.a != e.b and e not in self.edges:
-                e.a.neighbors.append(e.b)
-                self.edges.append(e)
 
 class Tree(Graph):
     pass # TODO
