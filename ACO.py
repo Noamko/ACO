@@ -21,54 +21,60 @@ class AcoTsp:
             unvisited = [node for node in self.graph.nodes if node not in self.trip]
 
             total = 0.0
-            for unode in unvisited:
-                total += (1 / self.graph.getEdge(self.trip[-1], unode).cost) ** self.beta * \
-                         (self.graph.getEdge(self.trip[-1], unode).pheromone) ** self.alpha
+            for unvisited_node in unvisited:
+                total += (1 / self.graph.get_edge(self.trip[-1], unvisited_node).cost) ** self.beta * \
+                         self.graph.get_edge(self.trip[-1], unvisited_node).pheromone ** self.alpha
 
             probs = []
-            for unode in unvisited:
-                probs.append((self.graph.getEdge(self.trip[-1], unode).pheromone ** self.alpha *
-                              (1 / self.graph.getEdge(self.trip[-1], unode).cost) ** self.beta) / total)
+            for unvisited_node in unvisited:
+                probs.append((self.graph.get_edge(self.trip[-1], unvisited_node).pheromone ** self.alpha *
+                              (1 / self.graph.get_edge(self.trip[-1], unvisited_node).cost) ** self.beta) / total)
 
             return np.random.choice(unvisited, 1, p=probs)[0]
 
         def find_path(self, start):
             self.trip = [start]
-            distance = 0
             while len(self.trip) != len(self.graph.nodes):
-                nxt = self.select_edge()
-                d = self.graph.getEdge(self.trip[-1], nxt).cost
-                distance += d
-                print((self.trip[-1], nxt), distance)
                 self.trip.append(self.select_edge())
-            return self.trip, distance
+            return self.trip
+
+        def get_distance(self):
+            distance = 0
+            prev = None
+            for node in self.trip:
+                if prev is not None:
+                    distance += self.graph.get_edge(prev, node).cost
+                prev = node
+            distance += self.graph.get_edge(self.trip[-1], self.trip[0]).cost
+            return distance
 
     def __init__(self, graph: Graph, colony_size: int) -> None:
         self.graph = graph
         self.colony_size = colony_size
-        self.steps = 100
+        self.steps = 20
         self.ants = [self.Ant(1, 3, self.graph) for _ in range(self.colony_size)]
         self.rho = 0.1
         self.pheromone_deposit_weight = 1
         self.bestDistance = float("inf")
         self.bestTrip = None
 
-    def addPheromones(self, trip, distanceCovered):
-        pheromones = self.pheromone_deposit_weight / distanceCovered
-        for i in range(self.graph.nodeCount()):
-            self.graph.getEdge(trip[i], trip[(i + 1) % self.graph.nodeCount()]).pheromone += pheromones
+    def add_pheromones(self, trip, distance_covered):
+        pheromones = self.pheromone_deposit_weight / distance_covered
+        for i in range(self.graph.node_count()):
+            self.graph.get_edge(trip[i], trip[(i + 1) % self.graph.node_count()]).pheromone += pheromones
 
     # ACS
     def run(self, start):
         for step in range(self.steps):
             for ant in self.ants:
                 path = ant.find_path(start)
-                if path[1] < self.bestDistance:
-                    self.bestTrip = path[0]
-                    self.bestDistance = path[1]
-                    self.addPheromones(path[0], path[1])
+                ant_distance_traveled = ant.get_distance()
+                if ant_distance_traveled < self.bestDistance:
+                    self.bestTrip = path
+                    self.bestDistance = ant_distance_traveled
+                    self.add_pheromones(path, ant_distance_traveled)
 
-            # evapurate pheromones
+            # evaporate pheromones
             for edge in self.graph.edges:
                 edge.pheromone *= (1 - self.rho)
-        print((self.bestTrip, self.bestDistance))  # bugs..4
+        print((self.bestTrip, self.bestDistance))

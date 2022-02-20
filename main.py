@@ -1,4 +1,3 @@
-
 from Graphs import Graph
 from aco import AcoTsp
 
@@ -14,8 +13,6 @@ roads = [AcoTsp.AcoEdge("Tel Aviv", "Kfar Saba", 30),
          AcoTsp.AcoEdge("Eilat", "Haifa", 620),
          AcoTsp.AcoEdge("Haifa", "Beer Sheva", 580)]
 
-
-israel = Graph(roads)
-aco = AcoTsp(israel, 5)
+israel = Graph(edges=roads)
+aco = AcoTsp(israel, 100)
 aco.run("Tel Aviv")
-print()
