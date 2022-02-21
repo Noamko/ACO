@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 
 class Graph:
@@ -41,10 +42,11 @@ class Graph:
             else:
                 self.neighborLists[e.a] = [e.a]
 
-            if e.a not in self.nodes:
-                self.nodes.append(e.a)
-            if e.b not in self.nodes:
-                self.nodes.append(e.b)
+            if len(nodes) == 0:
+                if e.a not in self.nodes:
+                    self.nodes.append(e.a)
+                if e.b not in self.nodes:
+                    self.nodes.append(e.b)
 
     def __str__(self) -> str:
         a = ""
@@ -60,51 +62,12 @@ class Graph:
         return len(self.nodes)
 
 
-# class DirectedGraph(Graph):
-#     class Edge(Graph.Edge):
-#         def __init__(self, a, b, cost) -> None:
-#             super().__init__(a, b, cost)
-#             self.b.neighbors.remove(self.a)  # pretty ugly but ok
-#
-#         def init_neighbors(self):
-#             self.a.neighbors.append(self.b)
-#
-#         def __str__(self) -> str:
-#             return f"{self.a} --{self.cost}--> {self.b}"
-#
-#         def __eq__(self, __o: object) -> bool:
-#             return __o.a == self.a and __o.b == self.b
-#
-#     def __init__(self, edges=None, nodes=None) -> None:
-#         super().__init__(edges, nodes)
-#         if nodes is None:
-#             nodes = []
-#         if edges is None:
-#             edges = []
-
-#
-# class Tree(Graph):
-#     pass  # TODO
-
-
-# def generate(size=10, mincost=1, maxcost=100, _type="none"):
-#     nodes = []
-#     edges = []
-#     for i in range(size):
-#         nodes.append(i)
-#
-#     for n in nodes:
-#         if _type == "none":
-#             e = Graph.Edge(n, nodes[random.randint(0, size - 1)], random.randint(mincost, maxcost))
-#             if e.a != e.b and e not in edges:
-#                 e.a.neighbors.append(e.b)
-#                 e.b.neighbors.append(e.a)
-#                 edges.append(e)
-#
-#         elif _type == "directed":
-#             e = DirectedGraph.Edge(n, nodes[random.randint(0, size - 1)], random.randint(mincost, maxcost))
-#             if e.a != e.b and e not in edges:
-#                 e.a.neighbors.append(e.b)
-#                 edges.append(e)
-#
-#     return Graph(edges, nodes)
+def generate_clique(size=10, edge_type=Graph.Edge,nodes=[]):
+    edges = []
+    for i in range(size):
+        for j in range(size):
+            if i != j:
+                e = edge_type(nodes[i],nodes[j])
+                e.cost = float("%.2f" % np.linalg.norm(np.asarray(e.a) - np.asarray(e.b)))
+                edges.append(e)
+    return Graph(nodes, edges)

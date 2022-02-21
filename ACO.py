@@ -30,7 +30,8 @@ class AcoTsp:
                 probs.append((self.graph.get_edge(self.trip[-1], unvisited_node).pheromone ** self.alpha *
                               (1 / self.graph.get_edge(self.trip[-1], unvisited_node).cost) ** self.beta) / total)
 
-            return np.random.choice(unvisited, 1, p=probs)[0]
+            selected_index = np.random.choice(len(unvisited), p=probs)
+            return unvisited[selected_index]
 
         def find_path(self, start):
             self.trip = [start]
@@ -51,7 +52,7 @@ class AcoTsp:
     def __init__(self, graph: Graph, colony_size: int) -> None:
         self.graph = graph
         self.colony_size = colony_size
-        self.steps = 20
+        self.steps = 200
         self.ants = [self.Ant(1, 3, self.graph) for _ in range(self.colony_size)]
         self.rho = 0.1
         self.pheromone_deposit_weight = 1
@@ -73,8 +74,9 @@ class AcoTsp:
                     self.bestTrip = path
                     self.bestDistance = ant_distance_traveled
                     self.add_pheromones(path, ant_distance_traveled)
+                    print(self.bestDistance)
 
             # evaporate pheromones
             for edge in self.graph.edges:
                 edge.pheromone *= (1 - self.rho)
-        print((self.bestTrip, self.bestDistance))
+        return self.bestTrip, self.bestDistance

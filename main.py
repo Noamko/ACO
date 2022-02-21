@@ -1,18 +1,10 @@
-from Graphs import Graph
+from Graphs import generate_clique
 from aco import AcoTsp
+import random
 
-# create a fully connected graph
-roads = [AcoTsp.AcoEdge("Tel Aviv", "Kfar Saba", 30),
-         AcoTsp.AcoEdge("Tel Aviv", "Eilat", 400),
-         AcoTsp.AcoEdge("Tel Aviv", "Haifa", 100),
-         AcoTsp.AcoEdge("Tel Aviv", "Beer Sheva", 150),
-         AcoTsp.AcoEdge("Kfar Saba", "Eilat", 450),
-         AcoTsp.AcoEdge("Kfar Saba", "Haifa", 80),
-         AcoTsp.AcoEdge("Kfar Saba", "Beer Sheva", 180),
-         AcoTsp.AcoEdge("Eilat", "Beer Sheva", 200),
-         AcoTsp.AcoEdge("Eilat", "Haifa", 620),
-         AcoTsp.AcoEdge("Haifa", "Beer Sheva", 580)]
 
-israel = Graph(edges=roads)
-aco = AcoTsp(israel, 100)
-aco.run("Tel Aviv")
+nodes = [(float("%.2f" % random.uniform(-200,200)), float("%.2f" % random.uniform(-200,200))) for i in range(10)]
+g = generate_clique(10, AcoTsp.AcoEdge, nodes)
+
+acs = AcoTsp(g, 12)
+acs.run(g.nodes[0])
