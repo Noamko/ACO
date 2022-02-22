@@ -58,25 +58,57 @@ class AcoTsp:
         self.pheromone_deposit_weight = 1
         self.bestDistance = float("inf")
         self.bestTrip = None
+        self.elitist_weight = 1.0
+        self.min_scale_factor = 0.001
 
-    def add_pheromones(self, trip, distance_covered):
+    def add_pheromones(self, trip, distance_covered, weight=1.0):
         pheromones = self.pheromone_deposit_weight / distance_covered
         for i in range(self.graph.node_count()):
-            self.graph.get_edge(trip[i], trip[(i + 1) % self.graph.node_count()]).pheromone += pheromones
+            self.graph.get_edge(trip[i], trip[(i + 1) % self.graph.node_count()]).pheromone += pheromones * weight
+
+    def acs(self, start, step):
+        for ant in self.ants:
+            path = ant.find_path(start)
+            ant_distance_traveled = ant.get_distance()
+            if ant_distance_traveled < self.bestDistance:
+                self.bestTrip = path
+                self.bestDistance = ant_distance_traveled
+                self.add_pheromones(path, ant_distance_traveled)
+
+    def elitist(self, start, step):
+        self.acs(start,step)
+        self.add_pheromones(self.bestTrip, self.bestDistance, weight=self.elitist_weight)
+
+    def minmax(self, start, step):
+        current_best_trip = None
+        current_best_distance = float("inf")
+        for ant in self.ants:
+            ant.find_path(start)
+            if ant.get_distance() < current_best_distance:
+                current_best_trip = ant.trip
+                current_best_distance = ant.get_distance()
+        if float(step + 1) / float(self.steps) <= 0.75:
+            self.add_pheromones(current_best_trip, current_best_distance)
+            max_pheromone = self.pheromone_deposit_weight / current_best_distance
+        else:
+            if current_best_distance < self.bestDistance:
+                self.bestTrip = current_best_trip
+                self.bestDistance = current_best_distance
+            self.add_pheromones(self.bestTrip, self.bestDistance)
+            max_pheromone = self.pheromone_deposit_weight / self.bestDistance
+        min_pheromone = max_pheromone * self.min_scale_factor
+        for edge in self.graph.edges:
+            edge.pheromone *= (1 - self.rho)
+            if edge.pheromone > max_pheromone:
+                edge.pheromone = min_pheromone
+            elif edge.pheromone < min_pheromone:
+                edge.pheromone = min_pheromone
 
     # ACS
-    def run(self, start):
+    def run(self, start, func):
         for step in range(self.steps):
-            for ant in self.ants:
-                path = ant.find_path(start)
-                ant_distance_traveled = ant.get_distance()
-                if ant_distance_traveled < self.bestDistance:
-                    self.bestTrip = path
-                    self.bestDistance = ant_distance_traveled
-                    self.add_pheromones(path, ant_distance_traveled)
-                    print(self.bestDistance)
-
-            # evaporate pheromones
-            for edge in self.graph.edges:
-                edge.pheromone *= (1 - self.rho)
+            func(start, step)
+            if func.__name__ != "minmax":  # minmax has its own update evaporate rules
+                for edge in self.graph.edges:   # evaporate pheromones
+                    edge.pheromone *= (1 - self.rho)
         return self.bestTrip, self.bestDistance
