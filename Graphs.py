@@ -4,7 +4,7 @@ import numpy as np
 
 class Graph:
     class Edge:
-        def __init__(self, a, b, cost=0) -> None:
+        def __init__(self, a, b, cost=0.0) -> None:
             self.a = a
             self.b = b
             self.cost = cost
@@ -27,21 +27,9 @@ class Graph:
         self.nodes = nodes
         self.nodeMap = {}
         self.edgeMap = {}
-        self.neighborLists = {}
 
         for e in self.edges:
             self.edgeMap[(e.a, e.b)] = e
-
-            if e.a in self.neighborLists:
-                self.neighborLists[e.a].append(e.b)
-            else:
-                self.neighborLists[e.a] = [e.b]
-
-            if e.b in self.neighborLists:
-                self.neighborLists[e.b].append(e.a)
-            else:
-                self.neighborLists[e.a] = [e.a]
-
             if len(nodes) == 0:
                 if e.a not in self.nodes:
                     self.nodes.append(e.a)
@@ -61,13 +49,18 @@ class Graph:
     def node_count(self):
         return len(self.nodes)
 
+    def as_tuples(self) -> []:
+        result = []
+        for e in self.edges:
+            result.append((e.a, e.b))
+        return result
 
-def generate_clique(size=10, edge_type=Graph.Edge,nodes=[]):
+
+def generate_clique(size=10, edge_type=Graph.Edge, nodes=[]):
     edges = []
     for i in range(size):
-        for j in range(size):
+        for j in range(i,  size):
             if i != j:
-                e = edge_type(nodes[i],nodes[j])
-                e.cost = float("%.2f" % np.linalg.norm(np.asarray(e.a) - np.asarray(e.b)))
+                e = edge_type(nodes[i],nodes[j], float("%.2f" % np.linalg.norm(np.asarray(nodes[i]) - np.asarray(nodes[j]))))
                 edges.append(e)
     return Graph(nodes, edges)

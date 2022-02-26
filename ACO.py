@@ -3,7 +3,6 @@ import numpy as np
 
 
 class AcoTsp:
-    # we just use
     class AcoEdge(Graph.Edge):
         def __init__(self, a, b, cost=0) -> None:
             super().__init__(a, b, cost)
@@ -37,6 +36,7 @@ class AcoTsp:
             self.trip = [start]
             while len(self.trip) != len(self.graph.nodes):
                 self.trip.append(self.select_edge())
+            self.trip.append(start)     # we add the first node to complete a full circle
             return self.trip
 
         def get_distance(self):
@@ -46,13 +46,12 @@ class AcoTsp:
                 if prev is not None:
                     distance += self.graph.get_edge(prev, node).cost
                 prev = node
-            distance += self.graph.get_edge(self.trip[-1], self.trip[0]).cost
             return distance
 
     def __init__(self, graph: Graph, colony_size: int) -> None:
         self.graph = graph
         self.colony_size = colony_size
-        self.steps = 200
+        self.steps = 100
         self.ants = [self.Ant(1, 3, self.graph) for _ in range(self.colony_size)]
         self.rho = 0.1
         self.pheromone_deposit_weight = 1
@@ -66,7 +65,7 @@ class AcoTsp:
         for i in range(self.graph.node_count()):
             self.graph.get_edge(trip[i], trip[(i + 1) % self.graph.node_count()]).pheromone += pheromones * weight
 
-    def acs(self, start, step):
+    def acs(self, start, step=None):
         for ant in self.ants:
             path = ant.find_path(start)
             ant_distance_traveled = ant.get_distance()
@@ -105,10 +104,15 @@ class AcoTsp:
                 edge.pheromone = min_pheromone
 
     # ACS
-    def run(self, start, func):
+    def run(self, start, func, test=False):
+        result = []
         for step in range(self.steps):
             func(start, step)
             if func.__name__ != "minmax":  # minmax has its own update evaporate rules
                 for edge in self.graph.edges:   # evaporate pheromones
                     edge.pheromone *= (1 - self.rho)
+            if test:
+                result.append((self.bestTrip, self.bestDistance))
+        if test:
+            return result
         return self.bestTrip, self.bestDistance
