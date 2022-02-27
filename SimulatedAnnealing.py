@@ -2,11 +2,12 @@ import math
 import random
 
 
-def simulate(cords):
+def simulate(cords, steps=300):
+    result = []
     coordinates = cords
     N = len(coordinates)
     temp = math.sqrt(N)  # temperature of the algorithm. can start with any number
-    iterations = 100000
+    iterations = steps
     alpha = 0.995  # every iteration the temp is changing by alpha.
     stopping_temp = 1e-8  # temp is not stopping at 0 to prevent underflow
     firstSolution = greedySolution(N, coordinates)
@@ -34,9 +35,9 @@ def simulate(cords):
             if random.random() < p_accept(temp, newSolDist, currentDist):
                 currentSol = newSol.copy()
                 currentDist = newSolDist
-    print("Best distance: ", bestDist)
-    improvement = 100 * (firstDist - bestDist) / firstDist
-    print(f"Improvement over greedy heuristic: {improvement : .2f}%")
+        result.append(bestDist)
+
+    return result
 
 
 def dist(p1, p2):
