@@ -2,12 +2,12 @@ import math
 import random
 
 
-def simulate(cords, steps=300):
+def simulate(cords, iter=300):
     result = []
     coordinates = cords
     N = len(coordinates)
     temp = math.sqrt(N)  # temperature of the algorithm. can start with any number
-    iterations = steps
+    iterations = iter
     alpha = 0.995  # every iteration the temp is changing by alpha.
     stopping_temp = 1e-8  # temp is not stopping at 0 to prevent underflow
     firstSolution = greedySolution(N, coordinates)

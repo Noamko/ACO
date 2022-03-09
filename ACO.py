@@ -53,7 +53,7 @@ class AcoTsp:
         self.colony_size = colony_size
         self.ants = [self.Ant(1, 3, self.graph) for _ in range(self.colony_size)]
         self.rho = 0.1
-        self.steps = None
+        self.iter = None
         self.pheromone_deposit_weight = 1
         self.bestDistance = float("inf")
         self.bestTrip = None
@@ -86,7 +86,7 @@ class AcoTsp:
             if ant.get_distance() < current_best_distance:
                 current_best_trip = ant.trip
                 current_best_distance = ant.get_distance()
-        if float(step + 1) / float(self.steps) <= 0.10:
+        if float(step + 1) / float(self.iter) <= 0.10:
             self.add_pheromones(current_best_trip, current_best_distance)
             max_pheromone = self.pheromone_deposit_weight / current_best_distance
         else:
@@ -102,14 +102,12 @@ class AcoTsp:
                 edge.pheromone = min_pheromone
             elif edge.pheromone < min_pheromone:
                 edge.pheromone = min_pheromone
-        # if self.bestDistance == float('inf'):
-        #     self.bestDistance = current_best_distance
 
     # ACS
-    def run(self, start, func, steps=300, test=False):
+    def run(self, start, func, iter=300, test=False):
         result = []
-        self.steps = steps  # we init here for minmax
-        for step in range(steps):
+        self.iter = iter  # we init here for minmax
+        for step in range(iter):
             func(start, step)
             if func.__name__ != "minmax":  # minmax has its own update evaporate rules
                 for edge in self.graph.edges:   # evaporate pheromones
