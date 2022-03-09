@@ -2,7 +2,7 @@ from Graphs import generate_clique
 import numpy as np
 from tests.Test1 import test as test1
 from tests.Test2 import test as test2
-from aco import AcoTsp
+from Aco import AcoTsp
 import sys
 
 if __name__ == "__main__":

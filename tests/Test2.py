@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
 from Graphs import generate_clique
-from aco import AcoTsp
+from Aco import AcoTsp
 import numpy as np
 import SimulatedAnnealing
 

@@ -1,5 +1,5 @@
 from matplotlib import pyplot as plt
-from aco import AcoTsp
+from Aco import AcoTsp
 import SimulatedAnnealing
 
 
